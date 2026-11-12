@@ -69,6 +69,17 @@ object ReflectiveApi {
         return variants.firstNotNullOfOrNull { n -> fns.firstOrNull { it.name.equals("set$n", ignoreCase = true) } }
     }
 
+    /**
+     * 시트 위치를 움직이는 메서드. key "SeatForeAftPosition" -> moveSeatForeAft(area, MoveControl, …).
+     * 조회 이름이 다른 것도 있다: "SeatHeadrestHeightAftPosition" -> moveSeatHeadrestHeight
+     */
+    fun resolveMover(cls: KClass<*>, key: String): KFunction<*>? {
+        val fns = functions(cls).filter { f -> f.parameters.none { it.isListener() } }
+        val base = key.removeSuffix("Position")
+        return listOf(base, base.replace("HeightAft", "Height")).distinct()
+            .firstNotNullOfOrNull { n -> fns.firstOrNull { it.name.equals("move$n", ignoreCase = true) } }
+    }
+
     sealed interface Outcome {
         data class Success(val values: List<Any?>) : Outcome
         data class Failure(val message: String) : Outcome

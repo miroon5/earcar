@@ -49,6 +49,6 @@
 - **개인정보:** 이름, 연락처 없이 세팅 값만 기기 로컬에 저장하고, 공유 차량용 "내 데이터 지우기"를 제공합니다.
 
 ## 6. 남은 일 (P1 이후)
-- F4 적용: 구현함(`settings/reader/SettingsWriter.kt`, `ui/ApplyScreen.kt`, Manifest의 `CONTROL_CAR_*`). **실차/에뮬레이터에서 아직 한 번도 돌려 보지 못했습니다.** 제어 SDK 상태를 Playground My Project 콘솔에서 확인하고, `adb logcat -s FirstCar`의 `apply …` 줄로 항목별 성공 여부를 확인해 주세요. 시트 위치는 적용하지 않습니다(SDK에 위치 제어 없음). 온도 단위, 주행 모드도 SDK에 설정 메서드가 없어 "차에서 직접 바꿔 주세요"로 나옵니다
+- F4 적용: 구현함(`settings/reader/SettingsWriter.kt`, `ui/ApplyScreen.kt`, Manifest의 `CONTROL_CAR_*`). **실차/에뮬레이터에서 아직 한 번도 돌려 보지 못했습니다.** 제어 SDK 상태를 Playground My Project 콘솔에서 확인하고, `adb logcat -s FirstCar`의 `apply …` 줄로 항목별 성공 여부를 확인해 주세요. 시트 위치는 SDK에 "이 값으로" 설정하는 메서드가 없어 `moveSeat…`(FORWARD/BACKWARD/STOP)로 현재 위치를 읽어 가며 목표까지 움직였다가 멈춥니다. **실제 시트가 움직이는 동작이라 실차에서는 반드시 사람이 지켜보는 상태에서 먼저 확인해야 합니다.** 온도 단위, 주행 모드는 SDK에 설정 메서드가 없어 "차에서 직접 바꿔 주세요"로 나옵니다
 - F6 정리: Pleos 계정 로그아웃 연동 (현재는 로컬 데이터 삭제만)
 - Pretendard 폰트: `res/font`에 Regular, Bold를 넣고 `ui/theme/Theme.kt`의 `Type.Brand`만 바꾸면 됩니다 (OFL 라이선스 고지 필요)

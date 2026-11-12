@@ -39,6 +39,7 @@ import com.team.firstcar.ui.components.ButtonKind
 import com.team.firstcar.ui.components.ColorDot
 import com.team.firstcar.ui.components.IconTile
 import com.team.firstcar.ui.components.PillButton
+import com.team.firstcar.ui.components.SeatPartDiagram
 import com.team.firstcar.ui.components.Spinner
 import com.team.firstcar.ui.components.visualFor
 import com.team.firstcar.ui.theme.LocalOmni
@@ -117,7 +118,8 @@ private fun Section(title: String, rows: List<ApplyResult>, manual: Boolean) {
                     Modifier.fillMaxWidth().heightIn(min = 116.dp).padding(horizontal = 28.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp),
                 ) {
-                    IconTile(visualFor(r.itemId), size = 60.dp)
+                    // 시트 조절 항목은 어느 부위가 어느 쪽으로 움직였는지 그림으로
+                    if (r.itemId.startsWith("seat.")) SeatPartDiagram(r.itemId, 76.dp) else IconTile(visualFor(r.itemId), size = 60.dp)
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(item?.label ?: r.itemId, style = Type.bodyL, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         // 직접 바꿔야 하는 설정은 차 안 어디에서 바꾸는지 알려 준다

@@ -84,6 +84,15 @@ class SetterReflectionTest {
     }
 
     @Test
+    fun everySeatPositionHasAMoveMethod() {
+        val seat = ai.pleos.playground.vehicle.api.Seat::class
+        val missing = SettingRegistry.items.filter { it.type == SettingType.POSITION }.filter { item ->
+            item.locators.none { ReflectiveApi.resolveMover(seat, it.key) != null && ReflectiveApi.resolve(seat, it.key).read != null }
+        }.map { it.id }
+        assertEquals(emptyList<String>(), missing)
+    }
+
+    @Test
     fun valuesConvertToSetterParameterTypes() {
         assertEquals(true, SettingsWriter.toRaw(SettingValue.Enum("RECIRCULATION"), Boolean::class))
         assertEquals(false, SettingsWriter.toRaw(SettingValue.Enum("OFF"), Boolean::class))

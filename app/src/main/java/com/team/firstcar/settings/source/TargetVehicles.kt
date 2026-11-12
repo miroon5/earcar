@@ -69,6 +69,7 @@ class DemoCapabilityProvider(
             SettingType.NUMBER -> SettingValue.Number(cap.min ?: 0.0, cap.unit)
             SettingType.ENUM -> cap.allowed?.firstOrNull()?.let { SettingValue.Enum(it) }
             SettingType.COLOR -> cap.palette?.firstOrNull()?.let { SettingValue.Color(it) }
+            SettingType.POSITION -> cap.min?.let { SettingValue.Position(it.toInt()) }
             else -> null
         }
         v?.let { id to it }

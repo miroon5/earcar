@@ -158,7 +158,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     // ---------- F4 적용 ----------
     /**
      * 비교 결과에서 이 차에 맞게 바꾼 값(그대로, 비슷하게)을 실제 차에 설정한다.
-     * 실제 차량은 SDK로 설정을 바꾸고, 파일로 정의한 차량(KONA, GRANDEUR)은 앱 안의 차량 상태를 바꾼다. 시트 위치는 적용하지 않는다 (직접 조절).
+     * 실제 차량은 SDK로 설정을 바꾸고, 파일로 정의한 차량(KONA, GRANDEUR)은 앱 안의 차량 상태를 바꾼다. 시트 위치도 같이 적용한다.
      */
     fun apply() {
         val results = _ui.value.compare ?: return
@@ -166,10 +166,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         val targets = results.mapNotNull { r ->
             val item = SettingRegistry.get(r.itemId) ?: return@mapNotNull null
             val value = r.proposed ?: return@mapNotNull null
-            if (item.type == SettingType.POSITION) return@mapNotNull null
-            if (r.status != CompareStatus.SAME && r.status != CompareStatus.ADAPTED) return@mapNotNull null
+            // 이 차에 없는 기능과 판단할 수 없는 항목만 빼고, 시트 위치(참고 비율로 환산한 값)까지 전부 적용한다
+            if (r.status == CompareStatus.UNSUPPORTED || r.status == CompareStatus.UNKNOWN) return@mapNotNull null
             item to value
-        }
+        }.sortedBy { (item, _) -> item.type == SettingType.POSITION } // 시트는 마지막에 움직인다
         job?.cancel()
         _ui.update { it.copy(screen = Screen.APPLY, applying = true, applyResult = null) }
         job = viewModelScope.launch {
