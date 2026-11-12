@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.team.firstcar.MainViewModel
@@ -65,7 +66,8 @@ fun SaveScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
     if (wide) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
             Column(Modifier.weight(0.9f).fillMaxHeight()) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically)) {
+                Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     DoneMark(total > 0, if (total > 0) "세팅 ${total}개를 저장했어요" else "저장한 세팅이 없어요", car, big = true)
                 }
                 PillButton("홈으로", vm::back, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
@@ -92,9 +94,12 @@ internal fun DoneMark(done: Boolean, title: String, car: String?, big: Boolean) 
     Box(Modifier.size(size).clip(Shapes.pill).background(c.text), contentAlignment = Alignment.Center) {
         GlyphIcon(if (done) Glyph.CHECK else Glyph.CLOSE, c.bg, size * 0.56f)
     }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(title, style = Type.h2, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        if (done && car != null) Text(car, style = Type.bodyL, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    // 넓은 화면(big)에서는 아이콘과 문구를 가운데로 맞춘다
+    val align = if (big) TextAlign.Center else TextAlign.Start
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = if (big) Alignment.CenterHorizontally else Alignment.Start) {
+        Text(title, style = Type.h2, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = align)
+        if (done && car != null) Text(car, style = Type.bodyL, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = align)
     }
 }
 

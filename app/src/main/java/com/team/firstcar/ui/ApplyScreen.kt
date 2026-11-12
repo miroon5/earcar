@@ -56,7 +56,8 @@ fun ApplyScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
     if (wide) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
             Column(Modifier.weight(0.9f).fillMaxHeight()) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically)) {
+                Column(Modifier.weight(1f).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     DoneMark(applied.isNotEmpty(), title, car, big = true)
                 }
                 PillButton("홈으로", { vm.back(); vm.back() }, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
