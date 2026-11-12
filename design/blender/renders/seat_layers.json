@@ -1,0 +1,13 @@
+{
+  "note": "seat_side_*.png 공통. 좌표는 이미지 폭/높이에 대한 비율, 시트 앞이 오른쪽",
+  "metersPerImage": 1.6,
+  "hinge": [
+    0.39375,
+    0.68125
+  ],
+  "baseReclineDeg": 18.0,
+  "cushionTiltPivot": [
+    0.425,
+    0.7
+  ]
+}
