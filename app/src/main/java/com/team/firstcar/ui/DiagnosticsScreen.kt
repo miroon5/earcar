@@ -92,6 +92,18 @@ fun DiagnosticsScreen(ui: UiState, vm: MainViewModel, carServiceConnected: Boole
                 Divider()
             }
         }
+        ui.applyResult?.let { applied ->
+            item { SectionTitle("최근 적용 결과") }
+            item { Text("적용 ${applied.count { it.applied }} / 실패 ${applied.count { !it.applied }}", style = Type.body, color = c.text) }
+            items(applied, key = { "apply_" + it.itemId }) { r ->
+                Column(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text((SettingRegistry.get(r.itemId)?.label ?: r.itemId) + if (r.applied) "" else " (실패)", style = Type.title, color = c.text)
+                    Mono("값: ${ValueFormat.format(r.value)}")
+                    r.failure?.let { Mono("실패: $it") }
+                }
+                Divider()
+            }
+        }
         if (ui.catalog.isNotEmpty()) {
             item { SectionTitle("API 목록") }
             ui.catalog.forEach { (domain, fns) ->

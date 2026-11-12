@@ -56,10 +56,16 @@ object ReflectiveApi {
         return Resolved(cap, read)
     }
 
-    /** 설정(set) 메서드. key "HvacTemperatureValue" -> setHvacTemperature 처럼 State, Value 접미사를 뗀 이름도 찾는다 */
+    /**
+     * 설정(set) 메서드. 조회 이름과 설정 이름이 조금씩 달라 여러 후보를 본다.
+     * - State, Value 접미사를 뗀 이름: key "HvacTemperatureValue" -> setHvacTemperature
+     * - Hvac 접두사를 붙이거나 뗀 이름: Seat의 key "SeatTemperature" -> setHvacSeatTemperature,
+     *   SteeringWheel의 key "SteeringWheelHeatState" -> setHvacSteeringWheelHeat
+     */
     fun resolveSetter(cls: KClass<*>, key: String): KFunction<*>? {
         val fns = functions(cls).filter { f -> f.parameters.none { it.isListener() } }
-        val variants = listOf(key, key.removeSuffix("State"), key.removeSuffix("Value")).distinct()
+        val bases = listOf(key, key.removeSuffix("State"), key.removeSuffix("Value")).distinct()
+        val variants = bases.flatMap { n -> listOf(n, "Hvac$n", n.removePrefix("Hvac")) }.distinct()
         return variants.firstNotNullOfOrNull { n -> fns.firstOrNull { it.name.equals("set$n", ignoreCase = true) } }
     }
 
