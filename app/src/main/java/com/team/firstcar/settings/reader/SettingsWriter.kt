@@ -10,7 +10,14 @@ import kotlin.math.roundToInt
 import kotlin.reflect.KClass
 
 /** 한 항목을 이 차에 적용한 결과. 못 바꾼 항목은 [failure]에 이유가 남는다 (진단, 로그용) */
-data class ApplyResult(val itemId: String, val value: SettingValue, val applied: Boolean, val failure: String? = null)
+data class ApplyResult(
+    val itemId: String,
+    val value: SettingValue,
+    val applied: Boolean,
+    val failure: String? = null,
+    /** 적용하기 전에 그 차에 설정돼 있던 값 (화면에서 "이전 값 → 적용한 값"으로 보여 준다) */
+    val before: SettingValue? = null,
+)
 
 /**
  * 저장한 세팅을 지금 차에 적용한다 (Vehicle SDK의 set… 호출).

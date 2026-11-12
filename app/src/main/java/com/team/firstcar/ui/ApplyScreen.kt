@@ -13,7 +13,16 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,13 +42,15 @@ import com.team.firstcar.ui.components.PillButton
 import com.team.firstcar.ui.components.Spinner
 import com.team.firstcar.ui.components.visualFor
 import com.team.firstcar.ui.theme.LocalOmni
+import com.team.firstcar.ui.theme.LocalReduceMotion
+import com.team.firstcar.ui.theme.Motion
 import com.team.firstcar.ui.theme.Shapes
 import com.team.firstcar.ui.theme.Type
 
 /**
  * 적용 진행과 결과 (F4). 저장 화면과 같은 틀이다.
  * 왼쪽: 적용이 끝났다는 확인 (체크 표시, "세팅 N개를 적용했어요", 홈으로).
- * 오른쪽: 이 차에 적용한 설정과 값, 그리고 차에서 직접 바꿔야 하는 설정과 그 위치.
+ * 오른쪽: 이 차에 적용한 설정(이전 값 → 적용한 값이 위에서부터 차례로 바뀐다), 그리고 차에서 직접 바꿔야 하는 설정과 그 위치.
  */
 @Composable
 fun ApplyScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
@@ -95,6 +106,13 @@ private fun Section(title: String, rows: List<ApplyResult>, manual: Boolean) {
             rows.forEachIndexed { i, r ->
                 if (i > 0) Box(Modifier.padding(start = 112.dp, end = 28.dp).fillMaxWidth().height(1.dp).background(c.line))
                 val item = SettingRegistry.get(r.itemId)
+                val labels = item?.enumLabels.orEmpty()
+                // 적용한 항목은 이전 값이 먼저 보이고, 위에서부터 차례로 "→ 적용한 값"이 나타난다
+                val before = r.before?.takeIf { !manual && it != r.value }
+                val reduce = LocalReduceMotion.current
+                var shown by remember(r.itemId) { mutableStateOf(manual || reduce) }
+                LaunchedEffect(r.itemId) { if (!shown) { delay(500L + i * 260L); shown = true } }
+                val reveal by animateFloatAsState(if (shown) 1f else 0f, tween(420, easing = Motion.Ease), label = "reveal")
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 116.dp).padding(horizontal = 28.dp, vertical = 20.dp),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -105,8 +123,17 @@ private fun Section(title: String, rows: List<ApplyResult>, manual: Boolean) {
                         // 직접 바꿔야 하는 설정은 차 안 어디에서 바꾸는지 알려 준다
                         if (manual) item?.whereToSet?.let { Text(it, style = Type.caption, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                     }
-                    (r.value as? SettingValue.Color)?.let { ColorDot(it.rgb, size = 44.dp) }
-                    Text(ValueFormat.format(r.value, item?.enumLabels.orEmpty()), style = Type.title, color = c.text, maxLines = 1)
+                    if (before != null) {
+                        Text(ValueFormat.format(before, labels), style = Type.body, color = c.text, maxLines = 1)
+                        Text("→", style = Type.body, color = c.text, modifier = Modifier.graphicsLayer { alpha = reveal })
+                    }
+                    Row(
+                        Modifier.graphicsLayer { alpha = reveal; translationX = (1f - reveal) * 24f },
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        (r.value as? SettingValue.Color)?.let { ColorDot(it.rgb, size = 44.dp) }
+                        Text(ValueFormat.format(r.value, labels), style = Type.title, color = c.text, maxLines = 1)
+                    }
                 }
             }
         }

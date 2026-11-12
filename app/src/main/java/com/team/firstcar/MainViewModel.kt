@@ -69,7 +69,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val store = ProfileStore(app)
     private val firstRide = FirstRideStore(app)
 
-    private val real = RealCapabilityProvider(reader)
+    private val real = RealCapabilityProvider(reader, writer)
     private val providers: List<CapabilityProvider> = listOf(real) + DemoCapabilityProvider.loadAll(app)
 
     private val _ui = MutableStateFlow(UiState(
@@ -158,7 +158,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     // ---------- F4 적용 ----------
     /**
      * 비교 결과에서 이 차에 맞게 바꾼 값(그대로, 비슷하게)을 실제 차에 설정한다.
-     * 비교 대상이 어느 차든 동작한다 (설정 호출은 지금 연결된 차량으로 간다). 시트 위치는 적용하지 않는다 (직접 조절).
+     * 실제 차량은 SDK로 설정을 바꾸고, 파일로 정의한 차량(KONA, GRANDEUR)은 앱 안의 차량 상태를 바꾼다. 시트 위치는 적용하지 않는다 (직접 조절).
      */
     fun apply() {
         val results = _ui.value.compare ?: return
@@ -173,7 +173,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         job?.cancel()
         _ui.update { it.copy(screen = Screen.APPLY, applying = true, applyResult = null) }
         job = viewModelScope.launch {
-            val out = withContext(Dispatchers.Default) { writer.applyAll(targets) }
+            // 적용 전 값을 먼저 읽어 두고, 결과에 "이전 값"으로 붙인다
+            val p = provider()
+            val out = withContext(Dispatchers.Default) {
+                val before = p.currentValues()
+                p.apply(targets).map { it.copy(before = before[it.itemId]) }
+            }
             _ui.update { it.copy(applying = false, applyResult = out) }
         }
     }

@@ -32,7 +32,7 @@
 | 7 | `driving_regulation off` | 홈으로 복귀 |
 | 8 | 진단 > **내 데이터 지우기** | 공유 차량에서 내리기 전 정리 |
 
-- 차 이름은 공식 영문 표기를 씁니다. 기본 차는 "IONIQ 9"이고, 비교 대상 "KONA", "GRANDEUR"의 지원 범위는 `app/src/main/assets/vehicles/*.json`에 적어 둔 값이고 실제 차종 제원을 옮긴 것이 아닙니다. 저장 단계는 항상 실제 Vehicle SDK 조회입니다.
+- 차 이름은 공식 영문 표기를 씁니다. 기본 차는 "IONIQ 9"이고, 비교 대상 "KONA", "GRANDEUR"의 지원 범위는 `app/src/main/assets/vehicles/*.json`에 적어 둔 값이고 실제 차종 제원을 옮긴 것이 아닙니다. 저장 단계는 항상 실제 Vehicle SDK 조회입니다. KONA, GRANDEUR에 "적용"하면 실제 차량 제어가 아니라 앱 안에 둔 그 차의 설정 상태(처음에는 꺼짐, 최저 단계)가 바뀌고, 화면에 이전 값 → 적용한 값으로 보여 줍니다. 실제 SDK 제어(set…)는 비교 대상이 IONIQ 9(연결된 차량)일 때만 호출됩니다.
 - 비교 대상을 **현재 차량**으로 두면 이 에뮬레이터의 capability를 실제 SDK로 조회해 비교합니다.
 
 ## 구조

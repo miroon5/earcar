@@ -3,6 +3,12 @@ package com.team.firstcar.settings.source
 import android.content.Context
 import com.team.firstcar.settings.model.CapabilityInfo
 import com.team.firstcar.settings.model.CarIdentity
+import com.team.firstcar.settings.model.SettingType
+import com.team.firstcar.settings.model.SettingValue
+import com.team.firstcar.settings.reader.ApplyResult
+import com.team.firstcar.settings.reader.SettingsWriter
+import com.team.firstcar.settings.registry.SettingItem
+import com.team.firstcar.settings.registry.SettingRegistry
 import com.team.firstcar.settings.reader.SettingsReader
 import com.team.firstcar.settings.reader.toCapabilityMap
 import com.team.firstcar.settings.store.ProfileJson
@@ -16,9 +22,13 @@ interface CapabilityProvider {
     val isDemo: Boolean
     suspend fun identity(): CarIdentity
     suspend fun capabilities(): Map<String, CapabilityInfo>
+    /** 이 차에 지금 설정돼 있는 값 */
+    suspend fun currentValues(): Map<String, SettingValue>
+    /** 세팅을 이 차에 적용한다 */
+    suspend fun apply(targets: List<Pair<SettingItem, SettingValue>>): List<ApplyResult>
 }
 
-class RealCapabilityProvider(private val reader: SettingsReader) : CapabilityProvider {
+class RealCapabilityProvider(private val reader: SettingsReader, private val writer: SettingsWriter) : CapabilityProvider {
     override val id = REAL_ID
     override val title = "IONIQ 9"
     override val description = "Vehicle SDK로 이 차의 지원 범위를 조회합니다"
@@ -26,6 +36,8 @@ class RealCapabilityProvider(private val reader: SettingsReader) : CapabilityPro
     private var cached: CarIdentity? = null
     override suspend fun identity() = cached ?: reader.readCarIdentity().also { cached = it }
     override suspend fun capabilities() = reader.readAll().toCapabilityMap()
+    override suspend fun currentValues() = reader.readAll().mapNotNull { r -> r.value?.let { r.itemId to it } }.toMap()
+    override suspend fun apply(targets: List<Pair<SettingItem, SettingValue>>) = writer.applyAll(targets)
 
     companion object { const val REAL_ID = "real" }
 }
@@ -43,6 +55,33 @@ class DemoCapabilityProvider(
     override val isDemo = true
     override suspend fun identity() = CarIdentity("demo:$id", title, isDemo = true)
     override suspend fun capabilities() = items
+
+    /**
+     * 파일로 정의한 차량은 실제 차가 아니므로 "지금 설정된 값"을 앱 안에서 흉내 낸다.
+     * 처음에는 출고 상태(꺼짐, 가장 낮은 단계와 온도, 첫 번째 선택지)이고, 적용하면 이 값이 바뀐다.
+     * 실제 차량 제어(SDK set… 호출)는 일어나지 않는다.
+     */
+    private val state: MutableMap<String, SettingValue> = items.mapNotNull { (id, cap) ->
+        if (cap.supported != true) return@mapNotNull null
+        val v: SettingValue? = when (SettingRegistry.get(id)?.type) {
+            SettingType.SWITCH -> SettingValue.Switch(false)
+            SettingType.LEVEL -> SettingValue.Level(cap.min?.toInt() ?: 0)
+            SettingType.NUMBER -> SettingValue.Number(cap.min ?: 0.0, cap.unit)
+            SettingType.ENUM -> cap.allowed?.firstOrNull()?.let { SettingValue.Enum(it) }
+            SettingType.COLOR -> cap.palette?.firstOrNull()?.let { SettingValue.Color(it) }
+            else -> null
+        }
+        v?.let { id to it }
+    }.toMap().toMutableMap()
+
+    override suspend fun currentValues(): Map<String, SettingValue> = synchronized(state) { state.toMap() }
+
+    override suspend fun apply(targets: List<Pair<SettingItem, SettingValue>>): List<ApplyResult> = synchronized(state) {
+        targets.map { (item, value) ->
+            state[item.id] = value
+            ApplyResult(item.id, value, applied = true)
+        }
+    }
 
     companion object {
         fun loadAll(context: Context): List<DemoCapabilityProvider> {
