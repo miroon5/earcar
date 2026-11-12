@@ -1,0 +1,38 @@
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+**/build/
+
+# Local config (SDK 경로, Pleos 자격 증명, keystore 정보)
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Signing
+*.jks
+*.keystore
+
+# Build outputs
+*.apk
+*.aab
+apk/*
+!apk/.gitkeep
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Python
+__pycache__/
+*.pyc
+
+# Blender backups
+*.blend1
+*.blend2
+
+# OS
+.DS_Store
+Thumbs.db
