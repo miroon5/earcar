@@ -87,7 +87,7 @@ fun SummaryScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(Dimens.gap)) {
                 SummaryHeader(ui, vm)
-                if (results != null) SummaryButtons(vm, results)
+                if (results != null) SummaryButtons(ui, vm, results)
             }
             if (results == null) Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) { Spinner() }
             else SeatPoseCard(ui.profile, results, Modifier.weight(1f).fillMaxHeight())
@@ -100,7 +100,7 @@ fun SummaryScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
             } else {
                 SeatPoseCard(ui.profile, results, Modifier.weight(1.2f).fillMaxWidth())
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Dimens.gap)) {
-                    SummaryButtons(vm, results)
+                    SummaryButtons(ui, vm, results)
                 }
             }
         }
@@ -140,10 +140,13 @@ private fun CarBox(label: String, name: String, filled: Boolean, modifier: Modif
 }
 
 @Composable
-private fun ColumnScope.SummaryButtons(vm: MainViewModel, results: List<CompareResult>) {
+private fun ColumnScope.SummaryButtons(ui: UiState, vm: MainViewModel, results: List<CompareResult>) {
     StatGrid(results, Modifier) { vm.openDetail(it) }
     Box(Modifier.weight(1f))
-    PillButton("항목별로 보기", { vm.openDetail() }, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
+    // 실제 차량일 때만 적용할 수 있다. 적용 버튼이 주 버튼, 항목별 보기는 보조 버튼
+    val canApply = !ui.isDemoTarget
+    PillButton("항목별로 보기", { vm.openDetail() }, Modifier.fillMaxWidth(), kind = if (canApply) ButtonKind.OUTLINE else ButtonKind.DARK)
+    if (canApply) PillButton("이 차에 적용하기", vm::apply, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
 }
 
 /**

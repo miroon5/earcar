@@ -4,8 +4,9 @@
     <uses-feature android:name="android.hardware.type.automotive" android:required="true" />
 
     <!--
-      조회(read) 퍼미션만 선언한다. 이 앱은 세팅을 "읽고 비교"하며 제어(CONTROL_*)는 하지 않는다.
-      네트워크도 쓰지 않으므로 INTERNET 퍼미션이 없다 (저장은 기기 로컬만).
+      조회(read) 퍼미션으로 세팅을 읽고, 제어(CONTROL_*) 퍼미션으로 저장한 세팅을 이 차에 적용한다.
+      제어 퍼미션 이름은 Vehicle SDK 2.3.2의 set… 메서드에 붙은 @RequiresPermission 값이다.
+      네트워크는 쓰지 않으므로 INTERNET 퍼미션이 없다 (저장은 기기 로컬만).
     -->
     <uses-permission android:name="pleos.car.permission.CAR_CLIMATE" />           <!-- HVAC: 온도, 풍량, 열선, 통풍 -->
     <uses-permission android:name="pleos.car.permission.CAR_LIGHTS" />            <!-- Light: 앰비언트 -->
@@ -17,6 +18,13 @@
     <uses-permission android:name="pleos.car.permission.CAR_DRIVE" />             <!-- DrivingMode -->
     <uses-permission android:name="pleos.car.permission.CAR_TOLL" />              <!-- Toll: 하이패스 음량 -->
     <uses-permission android:name="pleos.car.permission.CAR_WINDOWS" />           <!-- Window: 스마트 글라스 -->
+
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_CLIMATE" />   <!-- 온도, 풍량, A/C, 핸들 열선 적용 -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_SEATS" />     <!-- 시트 열선, 통풍 적용 -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_LIGHTS" />    <!-- 앰비언트 적용 -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_MIRRORS" />   <!-- 사이드미러 열선 적용 -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_TOLL" />      <!-- 하이패스 음량 적용 -->
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_WINDOWS" />   <!-- 스마트 글라스 적용 -->
 
     <application
         android:allowBackup="false"

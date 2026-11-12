@@ -66,6 +66,7 @@ fun AppScreen(vm: MainViewModel) {
                                 Screen.SAVING -> SaveScreen(ui, vm, wide)
                                 Screen.SUMMARY -> SummaryScreen(ui, vm, wide)
                                 Screen.DETAIL -> DetailScreen(ui, vm, wide)
+                                Screen.APPLY -> ApplyScreen(ui, vm, wide)
                                 Screen.DIAGNOSTICS -> DiagnosticsScreen(ui, vm, driving.connected)
                             }
                         }

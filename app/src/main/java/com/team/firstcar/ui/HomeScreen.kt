@@ -47,8 +47,10 @@ fun HomeScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
         // 왼쪽은 누르는 것(버튼), 오른쪽은 보는 것. 버튼은 적당한 높이로 위에 모으고 나머지는 비워 둔다
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(Dimens.gap)) {
-                Actions(ui, vm, tile = Modifier.height(168.dp), large = true)
-                Box(Modifier.weight(1f))
+                // 버튼이 두 개면 남는 높이를 나눠 채우고, 하나뿐이면 적당한 높이로 두고 아래를 비운다
+                val two = !ui.isDemoTarget
+                Actions(ui, vm, tile = if (two) Modifier.weight(1f) else Modifier.height(168.dp), large = true)
+                if (!two) Box(Modifier.weight(1f))
                 DiagnosticsButton(vm)
             }
             Hero(ui, Modifier.weight(1f).fillMaxHeight())

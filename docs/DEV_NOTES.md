@@ -43,12 +43,12 @@
 ## 5. 기획서 "5. 개발 계획" 초안 (실제 코드 기준)
 - **사용 SDK:** Pleos Vehicle SDK 2.3.1 (조회만). AAOS `CarUxRestrictionsManager`.
 - **사용 API:** HVAC(HvacTemperature/Value, HvacFanSpeed, HvacAcState, HvacMaxAcState, HvacAutoState, HvacDualState, HvacRecirculationState, HvacAirCleanerState, HvacSeatTemperature, HvacSeatVentilation, HvacSteeringWheelHeatState, HvacSideMirrorHeatState), Light(AmbientLightBrightness, AmbientLightBrightnessColor, AmbientColorAutoByDriveModeEnabled), Display(TemperatureDisplayUnit), DrivingMode(DrivingModeState), Toll(EtcsVoiceGuidanceVolume), Window(SmartGlassLevel), Seat(SeatForeAft, Height, Depth, Tilt, BackrestAngle, Lumbar, Headrest, BeltHeight Position), CarInfo. 항목마다 `check…Capabilities`로 지원 여부와 범위를 확인한 뒤 현재 값을 1회 조회합니다(스냅샷).
-- **주행 중과 정차 중:** 정차 중에만 저장, 비교, 상세 화면을 엽니다. 주행 규제가 활성화되면 모든 화면을 닫고 한 줄 상태만 남기며 애니메이션을 끕니다. 차량 설정 변경(제어)은 하지 않습니다.
+- **주행 중과 정차 중:** 정차 중에만 저장, 비교, 적용, 상세 화면을 엽니다. 주행 규제가 활성화되면 모든 화면을 닫고 한 줄 상태만 남기며 애니메이션을 끕니다. 적용(제어)은 정차 중 비교 결과의 **이 차에 적용하기**로만 실행합니다.
 - **화면 구성:** portrait(1 window)는 홈 → 저장 → 비교 요약 → 항목별 상세, landscape(2 window, 폭 900dp 이상)는 요약과 상세를 나란히 보여 줍니다. 버튼 높이 88dp, 본문 24sp 이상, 대비 4.5:1 이상.
 - **안정성:** 항목별 2.5초 타임아웃과 실패 격리, 못 읽은 항목은 이유와 함께 "확인 불가"로 표시합니다. 네트워크를 쓰지 않습니다.
 - **개인정보:** 이름, 연락처 없이 세팅 값만 기기 로컬에 저장하고, 공유 차량용 "내 데이터 지우기"를 제공합니다.
 
 ## 6. 남은 일 (P1 이후)
-- F4 적용: 제어 SDK 상태를 Playground My Project 콘솔에서 확인 → 가능하면 `set…` 호출 후 재조회로 반영 확인 (`CONTROL_CAR_*` 퍼미션 추가, NO_SETUP이면 호출 금지)
+- F4 적용: 구현함(`settings/reader/SettingsWriter.kt`, `ui/ApplyScreen.kt`, Manifest의 `CONTROL_CAR_*`). **실차/에뮬레이터에서 아직 한 번도 돌려 보지 못했습니다.** 제어 SDK 상태를 Playground My Project 콘솔에서 확인하고, `adb logcat -s FirstCar`의 `apply …` 줄로 항목별 성공 여부를 확인해 주세요. 시트 위치는 적용하지 않습니다(SDK에 위치 제어 없음). 온도 단위, 주행 모드도 SDK에 설정 메서드가 없어 "차에서 직접 바꿔 주세요"로 나옵니다
 - F6 정리: Pleos 계정 로그아웃 연동 (현재는 로컬 데이터 삭제만)
 - Pretendard 폰트: `res/font`에 Regular, Bold를 넣고 `ui/theme/Theme.kt`의 `Type.Brand`만 바꾸면 됩니다 (OFL 라이선스 고지 필요)

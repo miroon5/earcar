@@ -11,7 +11,11 @@ import com.team.firstcar.settings.model.CompareResult
 import com.team.firstcar.settings.model.CompareStatus
 import com.team.firstcar.settings.model.ProfileSnapshot
 import com.team.firstcar.settings.model.SavedItem
+import com.team.firstcar.settings.reader.ApplyResult
 import com.team.firstcar.settings.reader.ItemReadResult
+import com.team.firstcar.settings.reader.SettingsWriter
+import com.team.firstcar.settings.model.SettingType
+import com.team.firstcar.settings.registry.SettingRegistry
 import com.team.firstcar.settings.reader.SettingsReader
 import com.team.firstcar.settings.source.CapabilityProvider
 import com.team.firstcar.settings.source.DemoCapabilityProvider
@@ -27,7 +31,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-enum class Screen { HOME, SAVING, SUMMARY, DETAIL, DIAGNOSTICS }
+enum class Screen { HOME, SAVING, SUMMARY, DETAIL, APPLY, DIAGNOSTICS }
 
 data class TargetOption(val id: String, val title: String, val description: String, val isDemo: Boolean)
 
@@ -44,6 +48,8 @@ data class UiState(
     val compare: List<CompareResult>? = null,
     val compareCar: CarIdentity? = null,
     val detailFilter: CompareStatus? = null, // 항목별 화면을 열 때 먼저 보여 줄 상태 (null이면 전체)
+    val applying: Boolean = false,
+    val applyResult: List<ApplyResult>? = null,
     val firstRidePrompt: Boolean = false,
     val diagnosing: Boolean = false,
     val diagnostics: List<ItemReadResult> = emptyList(),
@@ -59,6 +65,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val driving = DrivingStateMonitor(app)
     private val session = VehicleSession(app)
     private val reader = SettingsReader(session)
+    private val writer = SettingsWriter(session)
     private val store = ProfileStore(app)
     private val firstRide = FirstRideStore(app)
 
@@ -142,6 +149,29 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // ---------- F4 적용 ----------
+    /**
+     * 비교 결과에서 이 차에 맞게 바꾼 값(그대로, 비슷하게)을 실제 차에 설정한다.
+     * 실제 차량이 대상일 때만 동작한다. 시트 위치는 적용하지 않는다 (직접 조절).
+     */
+    fun apply() {
+        val results = _ui.value.compare ?: return
+        if (!canAct() || _ui.value.applying || _ui.value.isDemoTarget) return
+        val targets = results.mapNotNull { r ->
+            val item = SettingRegistry.get(r.itemId) ?: return@mapNotNull null
+            val value = r.proposed ?: return@mapNotNull null
+            if (item.type == SettingType.POSITION) return@mapNotNull null
+            if (r.status != CompareStatus.SAME && r.status != CompareStatus.ADAPTED) return@mapNotNull null
+            item to value
+        }
+        job?.cancel()
+        _ui.update { it.copy(screen = Screen.APPLY, applying = true, applyResult = null) }
+        job = viewModelScope.launch {
+            val out = withContext(Dispatchers.Default) { writer.applyAll(targets) }
+            _ui.update { it.copy(applying = false, applyResult = out) }
+        }
+    }
+
     fun dismissFirstRide() {
         _ui.value.currentCar?.let { firstRide.markSeen(it.key) }
         _ui.update { it.copy(firstRidePrompt = false) }
@@ -158,7 +188,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun back() {
         _ui.update {
             it.copy(screen = when (it.screen) {
-                Screen.DETAIL -> Screen.SUMMARY
+                Screen.DETAIL, Screen.APPLY -> Screen.SUMMARY
                 else -> Screen.HOME
             })
         }
@@ -202,10 +232,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun clearMessage() = _ui.update { it.copy(message = null) }
 
     private fun onDrivingStarted() {
-        val wasBusy = _ui.value.saving || _ui.value.comparing || _ui.value.diagnosing
+        val wasBusy = _ui.value.saving || _ui.value.comparing || _ui.value.diagnosing || _ui.value.applying
         job?.cancel()
         _ui.update {
-            it.copy(screen = Screen.HOME, saving = false, comparing = false, diagnosing = false,
+            it.copy(screen = Screen.HOME, saving = false, comparing = false, diagnosing = false, applying = false,
                 message = if (wasBusy) "주행이 시작되어 작업을 멈췄어요. 정차 후 다시 해 주세요." else it.message)
         }
     }

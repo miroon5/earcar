@@ -56,6 +56,13 @@ object ReflectiveApi {
         return Resolved(cap, read)
     }
 
+    /** 설정(set) 메서드. key "HvacTemperatureValue" -> setHvacTemperature 처럼 State, Value 접미사를 뗀 이름도 찾는다 */
+    fun resolveSetter(cls: KClass<*>, key: String): KFunction<*>? {
+        val fns = functions(cls).filter { f -> f.parameters.none { it.isListener() } }
+        val variants = listOf(key, key.removeSuffix("State"), key.removeSuffix("Value")).distinct()
+        return variants.firstNotNullOfOrNull { n -> fns.firstOrNull { it.name.equals("set$n", ignoreCase = true) } }
+    }
+
     sealed interface Outcome {
         data class Success(val values: List<Any?>) : Outcome
         data class Failure(val message: String) : Outcome
@@ -65,8 +72,9 @@ object ReflectiveApi {
     /**
      * 비동기 SDK 함수 호출. onComplete/onFailed 같은 함수형 파라미터에 콜백을 넣고, area 파라미터는
      * 운전석 기준으로 채운다. 콜백이 없는 동기 함수면 반환값을 결과로 쓴다.
+     * [valueArg]를 주면 설정(set) 호출로 보고, 나머지 값 파라미터를 그 함수가 돌려주는 값으로 채운다.
      */
-    suspend fun call(target: Any, fn: KFunction<*>, timeoutMs: Long = 2_500): Outcome =
+    suspend fun call(target: Any, fn: KFunction<*>, timeoutMs: Long = 2_500, valueArg: ((KClass<*>) -> Any?)? = null): Outcome =
         withTimeoutOrNull(timeoutMs) {
             suspendCancellableCoroutine<Outcome> { cont ->
                 val done = AtomicBoolean(false)
@@ -87,6 +95,9 @@ object ReflectiveApi {
                             }
                             cls != null && AreaFactory.isArea(cls) ->
                                 args[p] = AreaFactory.create(cls) ?: error("area 생성 실패: ${cls.simpleName}")
+                            // 설정 호출: 콜백, area가 아닌 값 파라미터에 적용할 값을 타입에 맞춰 넣는다
+                            valueArg != null && cls != null ->
+                                args[p] = valueArg(cls) ?: error("값을 ${cls.simpleName} 형식으로 바꿀 수 없음")
                             p.isOptional -> Unit
                             p.type.isMarkedNullable -> args[p] = null
                             else -> error("지원하지 않는 파라미터 ${p.name}: ${p.type}")
