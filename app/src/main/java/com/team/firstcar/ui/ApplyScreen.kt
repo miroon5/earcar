@@ -51,22 +51,22 @@ fun ApplyScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
     val applied = result.filter { it.applied }
     val manual = result.filter { !it.applied }
     val car = ui.compareCar?.displayName
-    val title = if (applied.isNotEmpty()) "세팅 ${applied.size}개를\n적용했어요" else "적용한 세팅이 없어요"
+    val title = if (applied.isNotEmpty()) "세팅 ${applied.size}개를 적용했어요" else "적용한 세팅이 없어요"
 
     if (wide) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
-            Column(Modifier.weight(0.7f).fillMaxHeight()) {
+            Column(Modifier.weight(0.9f).fillMaxHeight()) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically)) {
                     DoneMark(applied.isNotEmpty(), title, car, big = true)
                 }
                 PillButton("홈으로", { vm.back(); vm.back() }, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
             }
-            ApplyList(applied, manual, Modifier.weight(1.3f).fillMaxHeight())
+            ApplyList(applied, manual, Modifier.weight(1.1f).fillMaxHeight())
         }
     } else {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                DoneMark(applied.isNotEmpty(), title.replace("\n", " "), car, big = false)
+                DoneMark(applied.isNotEmpty(), title, car, big = false)
             }
             ApplyList(applied, manual, Modifier.weight(1f).fillMaxWidth())
             PillButton("홈으로", { vm.back(); vm.back() }, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)

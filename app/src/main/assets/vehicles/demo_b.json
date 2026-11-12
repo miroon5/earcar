@@ -1,6 +1,6 @@
 {
   "id": "demo_b",
-  "name": "현대 아이오닉 9 익스클루시브",
+  "name": "KONA",
   "description": "시트 열선 2단계, 핸들 열선과 통풍 없음, 앰비언트 4색",
   "items": {
     "hvac.temperature": { "supported": true, "min": 17, "max": 27, "step": 0.5, "unit": "CELSIUS" },

@@ -62,7 +62,7 @@ object Type {
     val body = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Normal, fontSize = 24.sp, lineHeight = 35.sp, letterSpacing = TRACKING)
     val caption = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Normal, fontSize = 20.sp, lineHeight = 29.sp, letterSpacing = TRACKING)
     val meta = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 28.sp, letterSpacing = TRACKING)
-    val button = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Bold, fontSize = 28.sp, letterSpacing = TRACKING)
+    val button = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Bold, fontSize = 32.sp, letterSpacing = TRACKING)
     val stat = TextStyle(fontFamily = Brand, fontWeight = FontWeight.Bold, fontSize = 76.sp, lineHeight = 78.sp, letterSpacing = TRACKING)
 }
 
@@ -75,11 +75,11 @@ object Shapes {
 
 /**
  * 차량 터치 기준. 흔들리는 차 안에서 팔을 뻗어 누르므로 폰(48dp)보다 훨씬 크게 잡는다.
- * 주 버튼 88dp, 보조 컨트롤(칩, 탭, 아이콘 버튼) 76dp 이상, 컨트롤 사이 간격 16dp 이상.
+ * 주 버튼 112dp, 보조 컨트롤(칩, 탭, 아이콘 버튼) 96dp 이상, 컨트롤 사이 간격 16dp 이상.
  */
 object Dimens {
-    val touch = 88.dp
-    val touchSmall = 76.dp
+    val touch = 112.dp
+    val touchSmall = 96.dp
     val tile = 128.dp
     val gap = 16.dp
 }

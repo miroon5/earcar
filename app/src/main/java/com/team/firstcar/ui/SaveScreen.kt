@@ -64,13 +64,13 @@ fun SaveScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
 
     if (wide) {
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(40.dp)) {
-            Column(Modifier.weight(0.7f).fillMaxHeight()) {
+            Column(Modifier.weight(0.9f).fillMaxHeight()) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(28.dp, Alignment.CenterVertically)) {
-                    DoneMark(total > 0, if (total > 0) "세팅 ${total}개를\n저장했어요" else "저장한 세팅이 없어요", car, big = true)
+                    DoneMark(total > 0, if (total > 0) "세팅 ${total}개를 저장했어요" else "저장한 세팅이 없어요", car, big = true)
                 }
                 PillButton("홈으로", vm::back, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
             }
-            SettingSections(groups, Modifier.weight(1.3f).fillMaxHeight())
+            SettingSections(groups, Modifier.weight(1.1f).fillMaxHeight())
         }
     } else {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -83,17 +83,18 @@ fun SaveScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
     }
 }
 
-/** 완료 확인: 검정 원 안의 체크, 큰 한 문장, 차 이름. 저장과 적용 화면이 같이 쓴다 */
+/** 결과 확인: 검정 원 안의 체크(없으면 X), 큰 한 문장, 차 이름. 저장과 적용 화면이 같이 쓴다 */
 @Composable
 internal fun DoneMark(done: Boolean, title: String, car: String?, big: Boolean) {
     val c = LocalOmni.current
     val size = if (big) 128.dp else 80.dp
-    if (done) Box(Modifier.size(size).clip(Shapes.pill).background(c.text), contentAlignment = Alignment.Center) {
-        GlyphIcon(Glyph.CHECK, c.bg, size * 0.56f)
+    // 된 것이 있으면 체크, 하나도 없으면 X
+    Box(Modifier.size(size).clip(Shapes.pill).background(c.text), contentAlignment = Alignment.Center) {
+        GlyphIcon(if (done) Glyph.CHECK else Glyph.CLOSE, c.bg, size * 0.56f)
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(title, style = if (big) Type.display else Type.h2, color = c.text)
-        if (done && car != null) Text(car, style = Type.bodyL, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(title, style = Type.h2, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (done && car != null) Text(car, style = Type.bodyL, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 

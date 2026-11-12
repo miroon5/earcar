@@ -57,7 +57,7 @@ import com.team.firstcar.ui.theme.Type
 enum class ButtonKind { PRIMARY, DARK, OUTLINE }
 
 /** 선으로 그리는 작은 아이콘. 아이콘 라이브러리 없이 Canvas로만 그린다 */
-enum class Glyph { BACK, CHEVRON, EMPTY, CHECK }
+enum class Glyph { BACK, CHEVRON, EMPTY, CHECK, CLOSE }
 
 @Composable
 fun GlyphIcon(glyph: Glyph, color: Color, size: Dp = 32.dp, modifier: Modifier = Modifier) {
@@ -69,6 +69,7 @@ fun GlyphIcon(glyph: Glyph, color: Color, size: Dp = 32.dp, modifier: Modifier =
         when (glyph) {
             Glyph.BACK -> { l(.2f, .5f, .82f, .5f); l(.2f, .5f, .46f, .24f); l(.2f, .5f, .46f, .76f) }
             Glyph.CHECK -> { l(.2f, .52f, .42f, .74f); l(.42f, .74f, .8f, .3f) }
+            Glyph.CLOSE -> { l(.27f, .27f, .73f, .73f); l(.73f, .27f, .27f, .73f) }
             Glyph.CHEVRON -> { l(.38f, .2f, .68f, .5f); l(.68f, .5f, .38f, .8f) }
             Glyph.EMPTY -> { // 빈 서랍
                 l(.14f, .3f, .86f, .3f); l(.14f, .3f, .14f, .78f); l(.86f, .3f, .86f, .78f); l(.14f, .78f, .86f, .78f)

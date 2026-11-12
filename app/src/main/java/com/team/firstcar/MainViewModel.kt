@@ -133,7 +133,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // ---------- F2, F3 비교 ----------
-    fun compare() {
+    fun compare() = startCompare(thenApply = false)
+
+    /** 첫 탑승 카드의 "적용하기": 이 차에 맞게 비교한 뒤 곧바로 적용까지 한다 */
+    fun compareAndApply() = startCompare(thenApply = true)
+
+    private fun startCompare(thenApply: Boolean) {
         val profile = _ui.value.profile ?: return
         if (!canAct() || _ui.value.comparing) return
         job?.cancel()
@@ -146,17 +151,18 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             firstRide.markSeen(car.key)
             _ui.update { it.copy(comparing = false, compare = results, compareCar = car) }
+            if (thenApply) { job = null; apply() }
         }
     }
 
     // ---------- F4 적용 ----------
     /**
      * 비교 결과에서 이 차에 맞게 바꾼 값(그대로, 비슷하게)을 실제 차에 설정한다.
-     * 실제 차량이 대상일 때만 동작한다. 시트 위치는 적용하지 않는다 (직접 조절).
+     * 비교 대상이 어느 차든 동작한다 (설정 호출은 지금 연결된 차량으로 간다). 시트 위치는 적용하지 않는다 (직접 조절).
      */
     fun apply() {
         val results = _ui.value.compare ?: return
-        if (!canAct() || _ui.value.applying || _ui.value.isDemoTarget) return
+        if (!canAct() || _ui.value.applying) return
         val targets = results.mapNotNull { r ->
             val item = SettingRegistry.get(r.itemId) ?: return@mapNotNull null
             val value = r.proposed ?: return@mapNotNull null

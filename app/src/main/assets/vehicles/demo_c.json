@@ -1,6 +1,6 @@
 {
   "id": "demo_c",
-  "name": "현대 아이오닉 9 캘리그래피",
+  "name": "GRANDEUR",
   "description": "대부분 지원하지만 온도 범위와 단계 수가 다름",
   "items": {
     "hvac.temperature": { "supported": true, "min": 16, "max": 32, "step": 0.5, "unit": "CELSIUS" },

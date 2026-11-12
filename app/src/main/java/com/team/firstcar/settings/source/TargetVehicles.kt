@@ -20,7 +20,7 @@ interface CapabilityProvider {
 
 class RealCapabilityProvider(private val reader: SettingsReader) : CapabilityProvider {
     override val id = REAL_ID
-    override val title = "현대 아이오닉 9 프레스티지"
+    override val title = "IONIQ 9"
     override val description = "Vehicle SDK로 이 차의 지원 범위를 조회합니다"
     override val isDemo = false
     private var cached: CarIdentity? = null
@@ -31,7 +31,7 @@ class RealCapabilityProvider(private val reader: SettingsReader) : CapabilityPro
 }
 
 /**
- * assets/vehicles/[id].json 에 적어 둔 지원 범위로 비교하는 차량 (아이오닉 9의 다른 트림).
+ * assets/vehicles/[id].json 에 적어 둔 지원 범위로 비교하는 차량 (KONA, GRANDEUR).
  * 비교 대상의 지원 범위만 파일에서 오고, 저장은 항상 실제 SDK 조회다.
  */
 class DemoCapabilityProvider(

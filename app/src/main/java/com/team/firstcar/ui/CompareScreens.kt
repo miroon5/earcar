@@ -113,29 +113,18 @@ private fun SummaryHeader(ui: UiState, vm: MainViewModel) {
     CompareBanner(ui)
 }
 
-/** 무엇과 무엇을 비교했는지: 세팅을 저장한 차 → 지금 맞춰 보는 차 */
+/** 어느 차에서 저장한 값인지 한 줄로 알려 준다 */
 @Composable
 internal fun CompareBanner(ui: UiState) {
     val c = LocalOmni.current
     val from = ui.profile ?: return
-    val to = ui.compareCar ?: return
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-        CarBox("세팅을 저장한 차", from.sourceCar.displayName, filled = false, Modifier.weight(1f))
-        Text("→", style = Type.h2, color = c.text)
-        CarBox("지금 타는 차", to.displayName, filled = true, Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun CarBox(label: String, name: String, filled: Boolean, modifier: Modifier) {
-    val c = LocalOmni.current
-    val fg = if (filled) c.onAccent else c.text
-    Column(
-        modifier.clip(Shapes.tile).background(if (filled) c.accent else c.box).padding(horizontal = 26.dp, vertical = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    Row(
+        Modifier.fillMaxWidth().clip(Shapes.tile).background(c.box).padding(horizontal = 28.dp, vertical = 22.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(label, style = Type.meta, color = fg, maxLines = 1)
-        Text(name, style = Type.bodyL.copy(fontWeight = FontWeight.Bold), color = fg, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(from.sourceCar.displayName, style = Type.h2, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false))
+        Text("에서 저장한 세팅", style = Type.title, color = c.text, maxLines = 1)
     }
 }
 
@@ -143,10 +132,9 @@ private fun CarBox(label: String, name: String, filled: Boolean, modifier: Modif
 private fun ColumnScope.SummaryButtons(ui: UiState, vm: MainViewModel, results: List<CompareResult>) {
     StatGrid(results, Modifier) { vm.openDetail(it) }
     Box(Modifier.weight(1f))
-    // 실제 차량일 때만 적용할 수 있다. 적용 버튼이 주 버튼, 항목별 보기는 보조 버튼
-    val canApply = !ui.isDemoTarget
-    PillButton("항목별로 보기", { vm.openDetail() }, Modifier.fillMaxWidth(), kind = if (canApply) ButtonKind.OUTLINE else ButtonKind.DARK)
-    if (canApply) PillButton("이 차에 적용하기", vm::apply, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
+    // 어느 차에서든 적용할 수 있다. 적용 버튼이 주 버튼, 항목별 보기는 보조 버튼
+    PillButton("항목별로 보기", { vm.openDetail() }, Modifier.fillMaxWidth(), kind = ButtonKind.OUTLINE)
+    PillButton("이 차에 적용하기", vm::apply, Modifier.fillMaxWidth(), kind = ButtonKind.DARK)
 }
 
 /**
@@ -171,7 +159,7 @@ private fun StatGrid(results: List<CompareResult>, modifier: Modifier, onOpen: (
             val src = remember(st) { MutableInteractionSource() }
             val scale = pressScale(src)
             Row(
-                Modifier.height(108.dp).fillMaxWidth().graphicsLayer { scaleX = scale; scaleY = scale }
+                Modifier.height(136.dp).fillMaxWidth().graphicsLayer { scaleX = scale; scaleY = scale }
                     .clip(Shapes.tile).background(c.box)
                     .clickable(interactionSource = src, indication = null, role = Role.Button) { onOpen(st) }
                     .padding(horizontal = 30.dp),

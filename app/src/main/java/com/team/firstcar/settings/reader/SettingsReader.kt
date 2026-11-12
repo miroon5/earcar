@@ -153,4 +153,4 @@ fun List<ItemReadResult>.toCapabilityMap(): Map<String, CapabilityInfo> =
     mapNotNull { r -> r.capability?.let { r.itemId to it } }.toMap()
 
 /** 차량 정보(CarInfo)를 못 읽었을 때 화면에 쓰는 차 이름 */
-const val DEFAULT_CAR_NAME = "현대 아이오닉 9 프레스티지"
+const val DEFAULT_CAR_NAME = "IONIQ 9"

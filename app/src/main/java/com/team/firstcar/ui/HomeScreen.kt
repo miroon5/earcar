@@ -47,10 +47,9 @@ fun HomeScreen(ui: UiState, vm: MainViewModel, wide: Boolean) {
         // 왼쪽은 누르는 것(버튼), 오른쪽은 보는 것. 버튼은 적당한 높이로 위에 모으고 나머지는 비워 둔다
         Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(28.dp)) {
             Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(Dimens.gap)) {
-                // 버튼이 두 개면 남는 높이를 나눠 채우고, 하나뿐이면 적당한 높이로 두고 아래를 비운다
-                val two = !ui.isDemoTarget
-                Actions(ui, vm, tile = if (two) Modifier.weight(1f) else Modifier.height(168.dp), large = true)
-                if (!two) Box(Modifier.weight(1f))
+                // 큰 버튼은 남는 높이의 절반씩. 버튼이 하나뿐이어도 같은 크기로 두고 나머지 절반은 비운다
+                Actions(ui, vm, tile = Modifier.weight(1f), large = true)
+                if (ui.isDemoTarget) Box(Modifier.weight(1f))
                 DiagnosticsButton(vm)
             }
             Hero(ui, Modifier.weight(1f).fillMaxHeight())
@@ -70,7 +69,7 @@ private fun DiagnosticsButton(vm: MainViewModel) {
         modifier = Modifier.fillMaxWidth().semantics { contentDescription = "진단과 차량 전환" })
 }
 
-/** 흰 무대: 위에 시트 그림, 아래에 지금 차 이름과 저장 현황 타일 */
+/** 흰 무대: 위에 시트 그림, 아래에 크게 쓴 차 이름과 저장 현황 타일 */
 @Composable
 private fun Hero(ui: UiState, modifier: Modifier) {
     val c = LocalOmni.current
@@ -78,10 +77,7 @@ private fun Hero(ui: UiState, modifier: Modifier) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
             SeatVisual(SeatPose(), Modifier.fillMaxWidth().weight(1f))
             ui.currentCar?.let {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("지금 차량", style = Type.meta, color = c.onKv)
-                    Text(it.displayName, style = Type.display, color = c.onKv, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
+                Text(it.displayName, style = Type.stat, color = c.onKv, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
             ui.profile?.let { p ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
@@ -112,9 +108,9 @@ private fun ColumnScope.Actions(ui: UiState, vm: MainViewModel, tile: Modifier, 
     if (ui.firstRidePrompt) {
         OmniCard(Modifier.fillMaxWidth()) {
             Text("처음 타는 차입니다", style = Type.h2, color = c.text)
-            Text("내 세팅을 이 차에서도 쓸 수 있는지 비교해 볼까요?", style = Type.bodyL, color = c.muted)
+            Text("저장한 내 세팅을 이 차에 적용할까요?", style = Type.bodyL, color = c.muted)
             Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap), modifier = Modifier.padding(top = 10.dp)) {
-                PillButton("비교하기", vm::compare, Modifier.weight(1.4f))
+                PillButton("적용하기", vm::compareAndApply, Modifier.weight(1.4f))
                 PillButton("다음에", vm::dismissFirstRide, Modifier.weight(1f), kind = ButtonKind.OUTLINE)
             }
         }
